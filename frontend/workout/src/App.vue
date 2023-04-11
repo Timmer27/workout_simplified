@@ -31,16 +31,13 @@
               <img src="./assets/logo.png" alt="logo" class="today_workout_pics">
             </div>
           </div>
-        </div>
-
-
 
           <!-- 운동 사진 등록 -->
           <nav id="uploadBox">
             <div class="uploadForm">
               <span>누구세요: </span>
-              <select name="ppl_names" id="ppl_names">
-                <option value="" selected disabled>본인 이름 고르셈</option>
+              <select name="ppl_names" id="ppl_names" ref="ppl_names" @change="selectedValue">
+                <option value="0" selected disabled>본인 이름 고르셈</option>
                 <option value="조성수">조성수</option>
                 <option value="이재빈">이재빈</option>
                 <option value="이종호">이종호</option>
@@ -56,19 +53,19 @@
             </div>
 
             <div class="uploadForm">
-              <span>오늘 운동 사진 인증 ㄱㄱ</span>
-              <input type="file" name="workout_file" id="workout_file" accept="image/*">
-            </div>
+              <span>오늘 운동 사진 파일로 인증 ㄱㄱ</span>
 
-            <div class="uploadForm">
-              <div>
-                다 올렸으면 저장 ㄱㄱ
-              </div>
-              <button>저장하기</button>
+              <form @submit.prevent="uploadFile" enctype="multipart/form-data">
+                <input @change="handleFileUpload" ref="file" type="file" name="workout_file" id="workout_file" accept="image/*">
+                <div>
+                  다 올렸으면 저장 ㄱㄱ
+                </div>
+                <button type="submit">저장하기</button>
+              </form>
+              <!-- enctype="multipart/form-data" -->
             </div>
           </nav>
-        <div>
-
+          
         </div>
     </main>
     <footer style="margin-top: 20px;">
@@ -104,13 +101,16 @@
       </div>
       <!-- 아래 멸치사진 ㄱ -->
     </footer>
-    
     <!-- {{curr_date}} -->
   </div>
 </template>
 
 <script>
 // import HelloWorld from './components/HelloWorld.vue'
+import axios from 'axios';
+
+// import { eventNames } from 'process';
+const path = "http://127.0.0.1:5000";
 
 export default {
   name: 'App',
@@ -118,19 +118,51 @@ export default {
     return {
       names :['조성수' ,'이재빈', '이종호'],
       workoutCnt: [3,6,10],
-      nowDate: function(){
-        return "test"
-      }
-      // nowDate: getNewDate()
+      selectedFile: null,
+      selected_name: '',
+
     }
   },
   components: {
+    // VSnackbar
     // HelloWorld
   },
   methods: {
     
-    testMethod(){
-      console.log('test')
+    selectedValue(){
+      this.selected_name = this.$refs.ppl_names.value
+      console.log(this.selected_name)
+    },
+
+    handleFileUpload(){
+      this.selectedFile = this.$refs.file.files[0];
+      console.log(this.selectedFile);
+    },
+    
+    // 파일 업로드
+    uploadFile(){
+      // 파일 없거나 이름 선택 안됬을 때
+      if (this.selectedFile == null){
+        console.log('파일 선택 ㄱㄱ');
+        return null;
+      }
+      else if(this.selected_name == ''){
+        console.log('이름 선택 ㄱ')
+        return null;
+      }
+      else{
+        const headers = { 'Content-Type': 'multipart/form-data' };
+        let formData = new FormData();
+        formData.append("file", this.selectedFile);
+        formData.append('name', this.selected_name);
+        
+        // 여기섯 backend로 넘기기
+        axios.post(path + "/uploadFile", formData, {headers}).then(res => {
+          console.log(res.data)
+        }).catch(err =>{
+          console.log(err + ': 에러 발생!')
+        });
+      }
     },
 
     getNewDate(){
