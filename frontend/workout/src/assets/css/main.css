@@ -6,9 +6,14 @@
     color: #2c3e50;
     /* margin-top: 60px; */
   }
+
+  .border_divBox{
+    border: 2px solid black;
+  }
+/* 
   div{
     border: 1px solid black;
-  }
+  } */
   
   #header_logo{
     inline-size: 50px;
